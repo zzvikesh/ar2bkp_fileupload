@@ -1,0 +1,5 @@
+@EndUserText.label: 'CSV File Upload'
+define service ZVKS_SD_CSV_FILE_UPLOAD {
+  expose ZVKS_C_CSVUploadMaster as UploadMaster;
+  expose ZVKS_C_CSVUploadedData as UploadedData;
+}

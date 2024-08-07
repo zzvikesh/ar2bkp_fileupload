@@ -1,0 +1,90 @@
+managed;
+strict ( 2 );
+with draft;
+
+define behavior for ZVKS_R_CSVUploadMasterTP alias UploadMaster
+implementation in class ZVKS_BP_CSVUploadMasterTP unique
+persistent table zvks_ta_upl_mstr
+draft table zvks_td_upl_mstr
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+
+  draft action Resume;
+  draft action Edit;
+  draft action Activate;
+  draft action Discard;
+  draft determine action Prepare
+  {
+    //validation {}
+    //validation {}
+  }
+
+  /* To Childs */
+
+  association _UploadedData { create; with draft; }
+
+  /* Fields */
+
+  field ( readonly )
+  CreatedBy, CreatedAt, LocalLastChangedBy, LocalLastChangedAt; //Admin Fields
+
+  mapping for zvks_ta_upl_mstr
+  {
+    UUID = uuid;
+    ID = id;
+    Text = text;
+    ProcessorClass = proc_class;
+    Attachment = attachment;
+    MimeType = mimetype;
+    FileName = filename;
+    TemplateAttachment = t_attachment;
+    TemplateMimeType = t_mimetype;
+    TemplateFileName = t_filename;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZVKS_R_CSVUploadedDataTP alias UploadedData
+implementation in class ZVKS_BP_R_UploadedDataTP unique
+persistent table zvks_ta_upl_data
+draft table zvks_td_upl_data
+lock dependent by _UploadMaster
+authorization dependent by _UploadMaster
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) UploadMasterUUID;
+
+  /* To Parent */
+
+  association _UploadMaster { with draft; }
+
+  /* Fields */
+
+  field ( readonly )
+  CreatedBy, CreatedAt, LocalLastChangedBy, LocalLastChangedAt; //Admin Fields
+
+  mapping for zvks_ta_upl_data
+  {
+    UUID = uuid;
+    UploadMasterUUID = upl_mstr_uuid;
+    Data = data;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+
+}
